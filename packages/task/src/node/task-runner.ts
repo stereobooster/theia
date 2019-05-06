@@ -61,6 +61,12 @@ export class TaskRunnerRegistry {
     /** Returns a Task Runner registered for the specified Task type or a default Task Runner if none. */
     getRunner(type: string): TaskRunner {
         const runner = this.runners.get(type);
+        if (runner) {
+            console.log('************** theia core === task runner === runner for type ' + type);
+        } else {
+            console.log('************** theia core === task runner === default runner for type ' + type);
+        }
+
         return runner ? runner : this.defaultRunner;
     }
 

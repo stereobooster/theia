@@ -264,10 +264,13 @@ export class TaskRunQuickOpenItem extends QuickOpenGroupItem {
         if (mode !== QuickOpenMode.OPEN) {
             return false;
         }
+        console.log('============== run ');
 
         if (ContributedTaskConfiguration.is(this.task)) {
+            console.log('=== run as detected ');
             this.taskService.run(this.task._source, this.task.label);
         } else {
+            console.log('=== run as configured ');
             this.taskService.runConfiguredTask(this.task._source, this.task.label);
         }
 

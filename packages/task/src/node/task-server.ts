@@ -54,15 +54,19 @@ export class TaskServerImpl implements TaskServer {
     }
 
     async run(taskConfiguration: TaskConfiguration, ctx?: string): Promise<TaskInfo> {
+        console.log('************** theia core === task service === run');
         const runner = this.runnerRegistry.getRunner(taskConfiguration.type);
+        console.log('************** theia core === task service === after run');
         const task = await runner.run(taskConfiguration, ctx);
 
         task.onExit(event => {
+            console.log('************** theia core === task service === on exit');
             this.taskManager.delete(task);
             this.fireTaskExitedEvent(event);
         });
 
         const taskInfo = await task.getRuntimeInfo();
+        console.log('************** theia core === task service === aftr get runtime info');
         this.fireTaskCreatedEvent(taskInfo);
         return taskInfo;
     }
