@@ -162,6 +162,9 @@ export class QuickPickExt<T extends QuickPickItem> implements QuickPick<T> {
     private readonly onDidTriggerButtonEmitter: Emitter<QuickInputButton>;
 
     constructor(readonly quickOpen: QuickOpenExtImpl) {
+        this._items = [];
+        this._activeItems = [];
+        this._placeholder = '';
         this.buttons = [];
         this.step = 0;
         this.title = '';
