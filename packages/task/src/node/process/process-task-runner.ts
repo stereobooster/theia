@@ -56,6 +56,7 @@ export class ProcessTaskRunner implements TaskRunner {
      * @param taskConfig task configuration to run a task from. The provided task configuration must have a shape of `CommandProperties`.
      */
     async run(taskConfig: TaskConfiguration, ctx?: string): Promise<Task> {
+        console.log('RUN ' + JSON.stringify(taskConfig));
         if (!taskConfig.command) {
             throw new Error("Process task config must have 'command' property specified");
         }
@@ -113,6 +114,7 @@ export class ProcessTaskRunner implements TaskRunner {
             await new Promise((resolve, reject) => {
                 proc.onStart(resolve);
                 proc.onError((error: ProcessErrorEvent) => {
+                    console.log('ERROR ' + error);
                     reject(ProcessTaskError.CouldNotRun(error.code));
                 });
             });
