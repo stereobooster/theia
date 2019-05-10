@@ -121,7 +121,8 @@ export class DocumentsMainImpl implements DocumentsMain {
     async $tryCreateDocument(options?: { language?: string; content?: string; }): Promise<UriComponents> {
         const language = options && options.language;
         const content = options && options.content;
-        return createUntitledResource(content, language);
+        const resource = createUntitledResource(content, language);
+        return monaco.Uri.parse(resource.uri.toString());
     }
 
     async $tryOpenDocument(uri: UriComponents, options?: TextDocumentShowOptions): Promise<void> {
@@ -182,6 +183,17 @@ export class DocumentsMainImpl implements DocumentsMain {
         const widget = await this.editorManger.getByUri(new URI(CodeURI.revive(uri)));
         if (widget) {
             await Saveable.save(widget);
+            return true;
+        }
+
+        return false;
+    }
+
+    async $tryCloseDocument(uri: UriComponents): Promise<boolean> {
+        const widget = await this.editorManger.getByUri(new URI(CodeURI.revive(uri)));
+        if (widget) {
+            await Saveable.save(widget);
+            widget.close();
             return true;
         }
 

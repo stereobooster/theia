@@ -18,7 +18,7 @@
 
 import { createProxyIdentifier, ProxyIdentifier } from './rpc-protocol';
 import * as theia from '@theia/plugin';
-import { PluginLifecycle, PluginModel, PluginMetadata, PluginPackage } from '../common/plugin-protocol';
+import { PluginLifecycle, PluginModel, PluginMetadata, PluginPackage, IconUrl } from '../common/plugin-protocol';
 import { QueryParameters } from '../common/env';
 import { TextEditorCursorStyle } from '../common/editor-options';
 import { TextEditorLineNumbersStyle, EndOfLine, OverviewRulerLane, IndentAction, FileOperationOptions } from '../plugin/types-impl';
@@ -419,13 +419,20 @@ export class TreeViewItem {
 
     label: string;
 
+    /* font-awesome icon for compatibility */
     icon?: string;
+    iconUrl?: IconUrl;
+
+    themeIconId?: 'folder' | 'file';
+
+    resourceUri?: UriComponents;
 
     tooltip?: string;
 
     collapsibleState?: TreeViewItemCollapsibleState;
 
     metadata?: any;
+    contextValue?: string;
 
 }
 
@@ -725,6 +732,7 @@ export interface DocumentsMain {
     $tryCreateDocument(options?: { language?: string; content?: string; }): Promise<UriComponents>;
     $tryOpenDocument(uri: UriComponents, options?: TextDocumentShowOptions): Promise<void>;
     $trySaveDocument(uri: UriComponents): Promise<boolean>;
+    $tryCloseDocument(uri: UriComponents): Promise<boolean>;
 }
 
 export interface EnvMain {

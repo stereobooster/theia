@@ -35,7 +35,7 @@ import { TabBarToolbarContribution, TabBarToolbarRegistry } from '@theia/core/li
 export namespace FileNavigatorCommands {
     export const REVEAL_IN_NAVIGATOR: Command = {
         id: 'navigator.reveal',
-        label: 'Reveal in Files'
+        label: 'Reveal in Explorer'
     };
     export const TOGGLE_HIDDEN_FILES: Command = {
         id: 'navigator.toggle.hidden.files',
@@ -84,6 +84,9 @@ export class FileNavigatorContribution extends AbstractViewContribution<FileNavi
     @inject(NavigatorContextKeyService)
     protected readonly contextKeyService: NavigatorContextKeyService;
 
+    @inject(MenuModelRegistry)
+    protected readonly menuRegistry: MenuModelRegistry;
+
     constructor(
         @inject(FileNavigatorPreferences) protected readonly fileNavigatorPreferences: FileNavigatorPreferences,
         @inject(OpenerService) protected readonly openerService: OpenerService,
@@ -115,6 +118,12 @@ export class FileNavigatorContribution extends AbstractViewContribution<FileNavi
         };
         updateFocusContextKeys();
         this.shell.activeChanged.connect(updateFocusContextKeys);
+        this.updateAddRemoveFolderActions(this.menuRegistry);
+        this.workspacePreferences.onPreferenceChanged(change => {
+            if (change.preferenceName === 'workspace.supportMultiRootWorkspace') {
+                this.updateAddRemoveFolderActions(this.menuRegistry);
+            }
+        });
     }
 
     async initializeLayout(app: FrontendApplication): Promise<void> {
@@ -138,7 +147,7 @@ export class FileNavigatorContribution extends AbstractViewContribution<FileNavi
         registry.registerCommand(FileNavigatorCommands.COLLAPSE_ALL, {
             execute: widget => this.withWidget(widget, () => this.collapseFileNavigatorTree()),
             isEnabled: widget => this.withWidget(widget, () => this.workspaceService.opened),
-            isVisible: wodget => this.withWidget(wodget, () => this.workspaceService.opened)
+            isVisible: widget => this.withWidget(widget, () => this.workspaceService.opened)
         });
     }
 
@@ -153,7 +162,7 @@ export class FileNavigatorContribution extends AbstractViewContribution<FileNavi
         super.registerMenus(registry);
         registry.registerMenuAction(SHELL_TABBAR_CONTEXT_MENU, {
             commandId: FileNavigatorCommands.REVEAL_IN_NAVIGATOR.id,
-            label: 'Reveal in Files',
+            label: FileNavigatorCommands.REVEAL_IN_NAVIGATOR.label,
             order: '5'
         });
 
@@ -216,13 +225,6 @@ export class FileNavigatorContribution extends AbstractViewContribution<FileNavi
             commandId: FileNavigatorCommands.COLLAPSE_ALL.id,
             label: 'Collapse All',
             order: 'z2'
-        });
-
-        this.updateAddRemoveFolderActions(registry);
-        this.workspacePreferences.onPreferenceChanged(change => {
-            if (change.preferenceName === 'workspace.supportMultiRootWorkspace') {
-                this.updateAddRemoveFolderActions(registry);
-            }
         });
     }
 
@@ -316,14 +318,14 @@ export class FileNavigatorContribution extends AbstractViewContribution<FileNavi
         }
     }
 
-    private readonly toDispoaseAddRemoveFolderActions = new DisposableCollection();
+    private readonly toDisposeAddRemoveFolderActions = new DisposableCollection();
     private updateAddRemoveFolderActions(registry: MenuModelRegistry): void {
-        this.toDispoaseAddRemoveFolderActions.dispose();
+        this.toDisposeAddRemoveFolderActions.dispose();
         if (this.workspacePreferences['workspace.supportMultiRootWorkspace']) {
-            this.toDispoaseAddRemoveFolderActions.push(registry.registerMenuAction(NavigatorContextMenu.WORKSPACE, {
+            this.toDisposeAddRemoveFolderActions.push(registry.registerMenuAction(NavigatorContextMenu.WORKSPACE, {
                 commandId: WorkspaceCommands.ADD_FOLDER.id
             }));
-            this.toDispoaseAddRemoveFolderActions.push(registry.registerMenuAction(NavigatorContextMenu.WORKSPACE, {
+            this.toDisposeAddRemoveFolderActions.push(registry.registerMenuAction(NavigatorContextMenu.WORKSPACE, {
                 commandId: WorkspaceCommands.REMOVE_FOLDER.id
             }));
         }
